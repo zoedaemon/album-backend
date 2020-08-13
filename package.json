@@ -1,0 +1,24 @@
+{
+  "name": "album-backend",
+  "version": "0.1.0",
+  "description": "backend REST API for https://github.com/alex-solovev/investax-album",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoedaemon/album-backend.git"
+  },
+  "keywords": [
+    "nodejs",
+    "album",
+    "API"
+  ],
+  "author": "Roy Adventus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zoedaemon/album-backend/issues"
+  },
+  "homepage": "https://github.com/zoedaemon/album-backend#readme"
+}
