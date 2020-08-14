@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
-    "test": "env-cmd -f ./.env-testunit jest --testTimeout=10000 --testEnvironment=node --coverage"
+    "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=10000 --testEnvironment=node --coverage"
   },
   "repository": {
     "type": "git",
@@ -26,12 +26,20 @@
     "cors": "^2.8.5",
     "env-cmd": "^10.1.0",
     "express": "^4.17.1",
+    "helmet": "^4.0.0",
     "node-os-utils": "^1.3.0",
-    "helmet": "^4.0.0"
+    "standard": "^14.3.4"
   },
   "devDependencies": {
     "jest": "^26.4.0",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2"
+  },
+  "standard": {
+    "env": [
+      "jest",
+      "node",
+      "es6"
+    ]
   }
 }
