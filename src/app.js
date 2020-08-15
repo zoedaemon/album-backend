@@ -2,7 +2,7 @@ const express = require('express')
 const helmet = require('helmet')
 const cors = require('cors')
 const albumRouter = require('./routers/album')
-const port = process.env.PORT
+const config = require('./config')
 const app = express()
 
 app.use(express.json())
@@ -15,8 +15,8 @@ if (process.env && process.env.NODE_ENV !== 'test') {
   app.use(cors())
   app.options('*', cors())
 
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+  app.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`)
   })
 }
 
