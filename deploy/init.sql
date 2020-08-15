@@ -1,0 +1,2 @@
+CREATE DATABASE album_db;
+CREATE DATABASE albumtest_db;
