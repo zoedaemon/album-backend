@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "albumuser",
+    "password": "albump@ss",
+    "database": "album_db",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  },
+  "test": {
+    "username": "root",
+    "password": "albump@ss",
+    "database": "albumtest_db",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  },
+  "production": {
+    "username": "secret",
+    "password": "pleaseusesafermethod",
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  }
+}
