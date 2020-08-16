@@ -7,7 +7,7 @@
     "dialect": "postgresql"
   },
   "test": {
-    "username": "root",
+    "username": "albumuser",
     "password": "albump@ss",
     "database": "albumtest_db",
     "host": "127.0.0.1",
