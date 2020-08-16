@@ -13,19 +13,22 @@ const Album = require('../models/album')(db.sequelize, db.Sequelize.DataTypes)
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
 router.get('/health', async (req, res) => {
+  let status = 'OK'
   try {
     // TODO: mock high CPU usage
     osutils.cpu.usage().then(info => {
       console.log('CPU Usage (%): ' + info)
       if (info > limit) {
-        console.log('CPU Usage Over 20%!')
-        res.status(503).send('WARN')
+        console.log(`CPU Usage Over ${limit}% !`)
+        status = 'WARN'
+        res.status(503).json({ message: status })
       } else {
-        res.status(200).send('OK')
+        res.status(200).json({ message: status })
       }
     })
   } catch (error) {
-    res.status(400).send(error)
+    console.log('error : ' + error)
+    res.status(400).json({ message: 'ERROR' })
   }
 })
 
@@ -35,10 +38,11 @@ router.post(config.api.prefix + '/list', async (req, res) => {
     const result = await Album.findAll({
       attributes: ['id', 'album', 'name', 'path', 'raw']
     })
-    res.status(200).send(JSON.stringify(result, null, 2))
+    const response = { message: 'OK', documents: result }
+    res.status(200).json(response)
   } catch (error) {
     console.log('error : ' + error)
-    res.status(400).send(error)
+    res.status(400).json({ message: 'ERROR' })
   }
 })
 
