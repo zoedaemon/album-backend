@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
-    "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=10000 --testEnvironment=node --coverage"
+    "pretest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=10000 --testEnvironment=node --coverage --runInBand --detectOpenHandles",
+    "posttest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate:undo:all"
   },
   "repository": {
     "type": "git",
@@ -28,11 +30,15 @@
     "express": "^4.17.1",
     "helmet": "^4.0.0",
     "node-os-utils": "^1.3.0",
+    "pg": "^8.3.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.4",
     "standard": "^14.3.4"
   },
   "devDependencies": {
     "jest": "^26.4.0",
     "nodemon": "^2.0.4",
+    "sequelize-cli": "^6.2.0",
     "supertest": "^4.0.2"
   },
   "standard": {
