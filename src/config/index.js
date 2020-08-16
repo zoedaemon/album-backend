@@ -27,6 +27,9 @@ module.exports = {
    * API configs
    */
   api: {
-    prefix: '/'
-  }
+    protocol: 'http',
+    prefix: '/photos'
+  },
+
+  album_path: process.env.IMAGE_PATH || './albums'
 }

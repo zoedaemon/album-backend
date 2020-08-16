@@ -1,13 +1,18 @@
 const express = require('express')
 const router = express.Router()
 
-var osutils = require('node-os-utils')
-var limit = 50 // in percent
+const osutils = require('node-os-utils')
+const limit = 50 // in percent
 
-// TODO : 503 for WARN, e.g. high CPU, high memory usage
+const config = require('../config/index')
+
+// initialize sequelize
+const db = require('../models/index')
+const Album = require('../models/album')(db.sequelize, db.Sequelize.DataTypes)
+
+// DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
 router.get('/health', async (req, res) => {
-  // Create a new user
   try {
     // TODO: mock high CPU usage
     osutils.cpu.usage().then(info => {
@@ -20,6 +25,19 @@ router.get('/health', async (req, res) => {
       }
     })
   } catch (error) {
+    res.status(400).send(error)
+  }
+})
+
+router.post(config.api.prefix + '/list', async (req, res) => {
+  try {
+    // get all album data
+    const result = await Album.findAll({
+      attributes: ['id', 'album', 'name', 'path', 'raw']
+    })
+    res.status(200).send(JSON.stringify(result, null, 2))
+  } catch (error) {
+    console.log('error : ' + error)
     res.status(400).send(error)
   }
 })
