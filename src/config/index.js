@@ -19,7 +19,7 @@ module.exports = {
   /**
    * image mimes for security when uploading file
    */
-  image_mimes: [
+  imageMimes: [
     'png', 'jpg', 'webp'
   ],
 
@@ -31,5 +31,5 @@ module.exports = {
     prefix: '/photos'
   },
 
-  album_path: process.env.IMAGE_PATH || './albums'
+  albumPath: process.env.IMAGE_PATH || './albums'
 }
