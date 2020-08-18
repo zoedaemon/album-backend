@@ -78,7 +78,6 @@ router.post(config.api.prefix + '/list', async (req, res) => {
 // TODO: better to put in controllers/logics/helpers modules
 router.put(config.api.prefix, async (req, res) => {
   try {
-
     // set multipart
     const formPost = formidable({ multiples: true })
 
@@ -99,31 +98,49 @@ router.put(config.api.prefix, async (req, res) => {
         const saveToPath = path.join(config.albumPath, albumName) + '/'
         await createDirIfNotExist(saveToPath)
 
-        if (files.documents && files.documents.length > 0) {
-          let resultRaw = []
-          // doing parallel upload
-          const resultsPromises = files.documents.map(async (srcFile) => {
+        console.log(files.documents)
+        if (files.documents) {
+
+          if (files.documents.length > 0) {
+            let resultRaw = []
+            // doing parallel upload
+            const resultsPromises = files.documents.map(async (srcFile) => {
+              // TODO: clean up malicious file name (slash, dots, etc)
+              const dstPath = saveToPath + srcFile.name
+
+              // TODO: mime check
+              console.log(srcFile.name + ':' + srcFile.type)
+
+              // upload image in documents to dstPath
+              return { path: await uploader(srcFile.path, dstPath) }
+            })
+
+            // log & assign sequentially
+            for (const resultsPromise of resultsPromises) {
+              const r = await resultsPromise
+              console.log(r)
+              resultRaw.push(r)
+            }
+            resolve(resultRaw)
+          } else {
             // TODO: clean up malicious file name (slash, dots, etc)
-            const dstPath = saveToPath + srcFile.name
-            console.log(srcFile.name + ':' + srcFile.type)
+            const dstPath = saveToPath + files.documents.name
+
+            // TODO: mime check
+            console.log(files.documents.name + ':' + files.documents.type)
 
             // upload image in documents to dstPath
-            return { path: await uploader(srcFile.path, dstPath) }
-          })
-
-          // log & assign sequentially
-          for (const resultsPromise of resultsPromises) {
-            const r = await resultsPromise
-            console.log(r)
-            resultRaw.push(r)
+            const resultRaw = [{ path: await uploader(files.documents.path, dstPath) }]
+            resolve(resultRaw)
           }
-          resolve(resultRaw)
+        } else {
+          resolve(null)
         }
       })
     })
 
     // check results
-    if (results.length > 0) {
+    if (results && results.length > 0) {
       const response = { message: 'OK', data: results }
       res.status(200).json(response)
     } else {
