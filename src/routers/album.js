@@ -98,7 +98,6 @@ router.put(config.api.prefix, async (req, res) => {
         const saveToPath = path.join(config.albumPath, albumName) + '/'
         await createDirIfNotExist(saveToPath)
 
-        console.log(files.documents)
         if (files.documents) {
 
           if (files.documents.length > 0) {
