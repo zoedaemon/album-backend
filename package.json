@@ -6,7 +6,7 @@
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
     "pretest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-    "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=300000 --testEnvironment=node --coverage --runInBand --detectOpenHandles",
+    "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=60000 --testEnvironment=node --coverage --runInBand --detectOpenHandles",
     "posttest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate:undo:all"
   },
   "repository": {
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/zoedaemon/album-backend#readme",
   "dependencies": {
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "env-cmd": "^10.1.0",
     "express": "^4.17.1",

@@ -1,6 +1,7 @@
 const express = require('express')
 const helmet = require('helmet')
 const cors = require('cors')
+const compression = require('compression');
 const albumRouter = require('./routers/album')
 const config = require('./config')
 
@@ -9,6 +10,7 @@ const app = express()
 app.use(express.json())
 app.use(albumRouter)
 app.use(helmet())
+app.use(compression())
 
 // dont tell to public our system
 app.disable('x-powered-by')
