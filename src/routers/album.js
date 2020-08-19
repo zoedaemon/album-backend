@@ -15,13 +15,19 @@ const AlbumMod = require('../modules/album')
 const formidable = require('formidable')
 const path = require('path')
 
-const AlbumUploadHelper = async (documents, saveToPath) => {
+const AlbumUploadHelper = async (documents, headers, album, saveToPath) => {
   // TODO: clean up malicious file name (slash, dots, etc)
   const dstPath = saveToPath + documents.name
   // TODO: mime check
   console.log(documents.name + ':' + documents.type)
   // upload image in documents to dstPath
-  return { path: await AlbumMod.upload(documents.path, dstPath) }
+  return {
+    album: album,
+    name: documents.name,
+    path: await AlbumMod.upload(documents.path, dstPath),
+    raw: config.api.protocol + '://' + headers.host + '/' + config.api.prefix + '/' +
+      album + '/' + documents.name
+  }
 }
 
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
@@ -89,7 +95,7 @@ router.put(config.api.prefix, async (req, res) => {
             // doing parallel upload
             const resultsPromises = files.documents.map(async (srcFile) => {
               // upload image
-              return AlbumUploadHelper(srcFile, saveToPath)
+              return AlbumUploadHelper(srcFile, req.headers, albumName, saveToPath)
             })
 
             // log & assign sequentially
@@ -100,10 +106,12 @@ router.put(config.api.prefix, async (req, res) => {
             }
             resolve(resultRaw)
           } else {
-            // upload image - generalize the data output which is type of array 
+            // upload image - generalize the data output which is type of array
             //                even with 1 file
             const resultRaw = []
-            resultRaw.push(await AlbumUploadHelper(files.documents, saveToPath))
+            const single = await AlbumUploadHelper(files.documents, req.headers, albumName,
+              saveToPath)
+            resultRaw.push(single)
             resolve(resultRaw)
           }
         } else {
@@ -114,10 +122,14 @@ router.put(config.api.prefix, async (req, res) => {
 
     // check results
     if (results && results.length > 0) {
+
+      // store data to db
+      AlbumMod.storeData(Album, results)
+
       const response = { message: 'OK', data: results }
       res.status(200).json(response)
     } else {
-      const response = { message: 'ERROR' }
+      const response = { message: 'ERROR', detail: 'Unprocessable entity - check your fields' }
       // unprocessable entity coz put fields not correct
       res.status(422).json(response)
     }
