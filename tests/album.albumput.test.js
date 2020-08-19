@@ -17,6 +17,7 @@ describe('PUT + ' + config.api.prefix, () => {
   // TODO: clean up all files test that has been successfully uploaded
   afterAll(() => db.sequelize.close())
 
+  // positive test
   it('should OK to upload 1 file and return response data', async () => {
     const fileName = 'Great-Observatories.jpg'
     const filePath = `${__dirname}/uploadTestSamples/` + fileName
@@ -40,6 +41,7 @@ describe('PUT + ' + config.api.prefix, () => {
       })
   })
 
+  // positive test
   it('should OK to upload multiple files and return responses data', async () => {
     const testDirName = 'uploadTestSamples'
     const albumName = 'universe'
@@ -72,7 +74,17 @@ describe('PUT + ' + config.api.prefix, () => {
         expect(res.statusCode).toEqual(200)
         const { message, data } = res.body
         expect(message).toBe('OK')
-        expect(data.length).toBe(2)
+        expect(data.length).toBe(3)
       })
+  })
+
+  // negative test
+  it('should ERROR when empty documents or none files to upload', async () => {
+    const res = await request(app)
+      .put(config.api.prefix)
+    expect(res.statusCode).toEqual(500)
+
+    const { message } = res.body
+    expect(message).toBe('ERROR')
   })
 })

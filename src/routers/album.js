@@ -99,7 +99,6 @@ router.put(config.api.prefix, async (req, res) => {
         await createDirIfNotExist(saveToPath)
 
         if (files.documents) {
-
           if (files.documents.length > 0) {
             let resultRaw = []
             // doing parallel upload
@@ -117,7 +116,7 @@ router.put(config.api.prefix, async (req, res) => {
             // log & assign sequentially
             for (const resultsPromise of resultsPromises) {
               const r = await resultsPromise
-              console.log(r)
+              // console.log(r)
               resultRaw.push(r)
             }
             resolve(resultRaw)
