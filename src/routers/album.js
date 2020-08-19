@@ -9,35 +9,11 @@ const config = require('../config/index')
 // initialize sequelize
 const db = require('../models/index')
 const Album = require('../models/album')(db.sequelize, db.Sequelize.DataTypes)
+const AlbumMod = require('../modules/album')
 
 // for upload and read file
-const fs = require('fs').promises
 const formidable = require('formidable')
 const path = require('path')
-
-// upload file asnycronously
-async function uploader (srcPath, dstPath) {
-  try {
-    const srcFile = await fs.readFile(srcPath)
-    await fs.writeFile(dstPath, srcFile)
-    return '/' + dstPath
-  } catch (error) {
-    console.log('error : ' + error)
-    return null
-  }
-}
-
-// create directory asyncronously
-async function createDirIfNotExist (path) {
-  try {
-    const stats = await fs.lstat(path)
-    if (stats.isDirectory()) {
-      ;// do nothing if is correct dir
-    }
-  } catch {
-    await fs.mkdir(path)
-  }
-}
 
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
@@ -96,7 +72,7 @@ router.put(config.api.prefix, async (req, res) => {
 
         // DONE: if saveToPath not exist create directory
         const saveToPath = path.join(config.albumPath, albumName) + '/'
-        await createDirIfNotExist(saveToPath)
+        await AlbumMod.createDirIfNotExist(saveToPath)
 
         if (files.documents) {
           if (files.documents.length > 0) {
@@ -110,7 +86,7 @@ router.put(config.api.prefix, async (req, res) => {
               console.log(srcFile.name + ':' + srcFile.type)
 
               // upload image in documents to dstPath
-              return { path: await uploader(srcFile.path, dstPath) }
+              return { path: await AlbumMod.upload(srcFile.path, dstPath) }
             })
 
             // log & assign sequentially
@@ -128,7 +104,7 @@ router.put(config.api.prefix, async (req, res) => {
             console.log(files.documents.name + ':' + files.documents.type)
 
             // upload image in documents to dstPath
-            const resultRaw = [{ path: await uploader(files.documents.path, dstPath) }]
+            const resultRaw = [{ path: await AlbumMod.upload(files.documents.path, dstPath) }]
             resolve(resultRaw)
           }
         } else {
