@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
-    "pretest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "pretest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate && NODE_ENV=test npx sequelize-cli db:seed:all",
     "test": "standard ./src && env-cmd -f ./.env-testunit jest --testTimeout=60000 --testEnvironment=node --coverage --runInBand --detectOpenHandles",
     "posttest": "cd ./src && NODE_ENV=test npx sequelize-cli db:migrate:undo:all"
   },
