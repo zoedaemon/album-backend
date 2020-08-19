@@ -80,9 +80,8 @@ describe('PUT + ' + config.api.prefix, () => {
 
   // negative test
   it('should ERROR when empty documents or none files to upload', async () => {
-    const res = await request(app)
-      .put(config.api.prefix)
-    expect(res.statusCode).toEqual(500)
+    const res = await request(app).put(config.api.prefix)
+    expect(res.statusCode).toEqual(422)
 
     const { message } = res.body
     expect(message).toBe('ERROR')

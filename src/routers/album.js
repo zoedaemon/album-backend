@@ -15,6 +15,15 @@ const AlbumMod = require('../modules/album')
 const formidable = require('formidable')
 const path = require('path')
 
+const AlbumUploadHelper = async (documents, saveToPath) => {
+  // TODO: clean up malicious file name (slash, dots, etc)
+  const dstPath = saveToPath + documents.name
+  // TODO: mime check
+  console.log(documents.name + ':' + documents.type)
+  // upload image in documents to dstPath
+  return [{ path: await AlbumMod.upload(documents.path, dstPath) }]
+}
+
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
 router.get('/health', async (req, res) => {
@@ -65,6 +74,7 @@ router.put(config.api.prefix, async (req, res) => {
           return
         }
 
+        // allow empty albumname so file uploaded to root dir (i.e. ./albums)
         let albumName = ''
         if (fields.album) {
           albumName = fields.album.toLowerCase()
@@ -76,17 +86,11 @@ router.put(config.api.prefix, async (req, res) => {
 
         if (files.documents) {
           if (files.documents.length > 0) {
-            let resultRaw = []
+            const resultRaw = []
             // doing parallel upload
             const resultsPromises = files.documents.map(async (srcFile) => {
-              // TODO: clean up malicious file name (slash, dots, etc)
-              const dstPath = saveToPath + srcFile.name
-
-              // TODO: mime check
-              console.log(srcFile.name + ':' + srcFile.type)
-
-              // upload image in documents to dstPath
-              return { path: await AlbumMod.upload(srcFile.path, dstPath) }
+              // upload image
+              return AlbumUploadHelper(srcFile, saveToPath)
             })
 
             // log & assign sequentially
@@ -97,14 +101,8 @@ router.put(config.api.prefix, async (req, res) => {
             }
             resolve(resultRaw)
           } else {
-            // TODO: clean up malicious file name (slash, dots, etc)
-            const dstPath = saveToPath + files.documents.name
-
-            // TODO: mime check
-            console.log(files.documents.name + ':' + files.documents.type)
-
-            // upload image in documents to dstPath
-            const resultRaw = [{ path: await AlbumMod.upload(files.documents.path, dstPath) }]
+            // upload image
+            const resultRaw = AlbumUploadHelper(files.documents, saveToPath)
             resolve(resultRaw)
           }
         } else {
@@ -119,7 +117,8 @@ router.put(config.api.prefix, async (req, res) => {
       res.status(200).json(response)
     } else {
       const response = { message: 'ERROR' }
-      res.status(500).json(response)
+      // unprocessable entity coz put fields not correct
+      res.status(422).json(response)
     }
   } catch (error) {
     console.log('error : ' + error)
