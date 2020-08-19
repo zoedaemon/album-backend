@@ -21,7 +21,7 @@ const AlbumUploadHelper = async (documents, saveToPath) => {
   // TODO: mime check
   console.log(documents.name + ':' + documents.type)
   // upload image in documents to dstPath
-  return [{ path: await AlbumMod.upload(documents.path, dstPath) }]
+  return { path: await AlbumMod.upload(documents.path, dstPath) }
 }
 
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
@@ -65,7 +65,6 @@ router.put(config.api.prefix, async (req, res) => {
   try {
     // set multipart
     const formPost = formidable({ multiples: true })
-
     // create promise for corectly parse all data needed to upload
     const results = await new Promise((resolve, reject) => {
       formPost.parse(req, async (err, fields, files) => {
@@ -101,8 +100,10 @@ router.put(config.api.prefix, async (req, res) => {
             }
             resolve(resultRaw)
           } else {
-            // upload image
-            const resultRaw = AlbumUploadHelper(files.documents, saveToPath)
+            // upload image - generalize the data output which is type of array 
+            //                even with 1 file
+            const resultRaw = []
+            resultRaw.push(await AlbumUploadHelper(files.documents, saveToPath))
             resolve(resultRaw)
           }
         } else {
