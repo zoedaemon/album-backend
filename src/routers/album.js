@@ -15,20 +15,7 @@ const AlbumMod = require('../modules/album')
 const formidable = require('formidable')
 const path = require('path')
 
-const AlbumUploadHelper = async (documents, headers, album, saveToPath) => {
-  // TODO: clean up malicious file name (slash, dots, etc)
-  const dstPath = saveToPath + documents.name
-  // TODO: mime check
-  console.log(documents.name + ':' + documents.type)
-  // upload image in documents to dstPath
-  return {
-    album: album,
-    name: documents.name,
-    path: await AlbumMod.upload(documents.path, dstPath),
-    raw: config.api.protocol + '://' + headers.host + '/' + config.api.prefix + '/' +
-      album + '/' + documents.name
-  }
-}
+const AlbumUploadHelper = require('../helpers/album-upload')
 
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
@@ -82,11 +69,11 @@ router.put(config.api.prefix, async (req, res) => {
         // allow empty albumname so file uploaded to root dir (i.e. ./albums)
         let albumName = ''
         if (fields.album) {
-          albumName = fields.album.toLowerCase()
+          albumName = fields.album
         }
 
         // DONE: if saveToPath not exist create directory
-        const saveToPath = path.join(config.albumPath, albumName) + '/'
+        const saveToPath = path.join(config.albumPath, albumName.toLowerCase()) + '/'
         await AlbumMod.createDirIfNotExist(saveToPath)
 
         if (files.documents) {
@@ -95,7 +82,7 @@ router.put(config.api.prefix, async (req, res) => {
             // doing parallel upload
             const resultsPromises = files.documents.map(async (srcFile) => {
               // upload image
-              return AlbumUploadHelper(srcFile, req.headers, albumName, saveToPath)
+              return AlbumUploadHelper(AlbumMod, srcFile, req.headers, albumName, saveToPath)
             })
 
             // log & assign sequentially
@@ -109,8 +96,8 @@ router.put(config.api.prefix, async (req, res) => {
             // upload image - generalize the data output which is type of array
             //                even with 1 file
             const resultRaw = []
-            const single = await AlbumUploadHelper(files.documents, req.headers, albumName,
-              saveToPath)
+            const single = await AlbumUploadHelper(AlbumMod, files.documents, req.headers,
+              albumName, saveToPath)
             resultRaw.push(single)
             resolve(resultRaw)
           }
@@ -122,7 +109,7 @@ router.put(config.api.prefix, async (req, res) => {
 
     // check results
     if (results && results.length > 0) {
-      // store data to db
+      // store data to db with help of Sequelize ORM
       AlbumMod.storeData(Album, results)
 
       const response = { message: 'OK', data: results }
