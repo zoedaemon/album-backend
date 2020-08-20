@@ -43,7 +43,12 @@ router.post(config.api.prefix + '/list', async (req, res) => {
   try {
     // get all album data
     const result = await Album.findAll({
-      attributes: ['id', 'album', 'name', 'path', 'raw']
+      attributes: ['id', 'album', 'name', 'path', 'raw'],
+      offset: req.body.skip,
+      limit: req.body.limit,
+      order: [
+        ['createdAt', 'DESC']
+      ]
     })
     const response = { message: 'OK', documents: result }
     res.status(200).json(response)
