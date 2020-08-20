@@ -16,7 +16,7 @@ module.exports = class Album {
       return null
     }
   }
- 
+
   // create directory asyncronously
   static async createDirIfNotExist (path) {
     try {

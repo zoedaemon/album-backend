@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      // album allowed to null so this would be put in parent directory 
+      // album allowed to null so this would be put in parent directory
       album: {
         type: Sequelize.STRING
       },

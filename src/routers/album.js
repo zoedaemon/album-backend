@@ -122,7 +122,6 @@ router.put(config.api.prefix, async (req, res) => {
 
     // check results
     if (results && results.length > 0) {
-
       // store data to db
       AlbumMod.storeData(Album, results)
 

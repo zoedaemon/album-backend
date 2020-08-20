@@ -4,7 +4,6 @@ const config = require('../src/config/index')
 const db = require('../src/models/index')
 
 describe('POST + ' + config.api.prefix + '/list', () => {
-
   // beforeEach(async () => {
   //   await request(app)
   //     .put(config.api.prefix)
