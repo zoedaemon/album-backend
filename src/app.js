@@ -1,7 +1,7 @@
 const express = require('express')
 const helmet = require('helmet')
 const cors = require('cors')
-const compression = require('compression');
+const compression = require('compression')
 const albumRouter = require('./routers/album')
 const config = require('./config')
 
@@ -14,6 +14,9 @@ app.use(compression())
 
 // dont tell to public our system
 app.disable('x-powered-by')
+
+// serve static images in albumPath
+app.use(config.api.prefix, express.static(config.albumPath))
 
 if (process.env && process.env.NODE_ENV !== 'test') {
   // TODO: use cors by domain name in production mode -
