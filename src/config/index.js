@@ -28,7 +28,8 @@ module.exports = {
    */
   api: {
     protocol: 'http',
-    prefix: '/photos'
+    prefix: '/photos',
+    host: 'yourdomain.com' // TODO must get from env
   },
 
   albumPath: process.env.IMAGE_PATH || './albums'
