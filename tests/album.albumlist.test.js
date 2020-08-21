@@ -3,8 +3,7 @@ const app = require('../src/app')
 const config = require('../src/config/index')
 const db = require('../src/models/index')
 
-describe('POST /list', () => {
-
+describe('POST + ' + config.api.prefix + '/list', () => {
   // beforeEach(async () => {
   //   await request(app)
   //     .put(config.api.prefix)

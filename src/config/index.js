@@ -19,7 +19,7 @@ module.exports = {
   /**
    * image mimes for security when uploading file
    */
-  image_mimes: [
+  imageMimes: [
     'png', 'jpg', 'webp'
   ],
 
@@ -28,8 +28,9 @@ module.exports = {
    */
   api: {
     protocol: 'http',
-    prefix: '/photos'
+    prefix: '/photos',
+    host: 'yourdomain.com' // TODO must get from env
   },
 
-  album_path: process.env.IMAGE_PATH || './albums'
+  albumPath: process.env.IMAGE_PATH || './albums'
 }
