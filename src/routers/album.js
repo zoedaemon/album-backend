@@ -17,6 +17,14 @@ const path = require('path')
 
 const AlbumUploadHelper = require('../helpers/album-upload')
 
+/**
+ * health check for status of API
+ * path : GET /health
+ * return :
+ *  - 200 : {"message" : "OK"}
+ *  - 503 : {"message" : "WARN"} //if system of API unhealthy
+ *  - 500 : {"message" : "FAIL"} //something wrong with API
+ */
 // DONE : 503 for WARN, e.g. high CPU, high memory usage
 // TODO : 500 for FAIL, i.e database not connected
 router.get('/health', async (req, res) => {
@@ -39,6 +47,13 @@ router.get('/health', async (req, res) => {
   }
 })
 
+/**
+ * get list of photos that have been uploaded and still exist / not deleted
+ * path : POST /{{prefix}}/list
+ * return :
+ *  - 200 : {"message" : "OK", "documents": [ << array of albums >> ]}
+ *  - 500 : {"message" : "ERROR"} //something wrong with get list data
+ */
 router.post(config.api.prefix + '/list', async (req, res) => {
   try {
     // get all album data
@@ -58,6 +73,13 @@ router.post(config.api.prefix + '/list', async (req, res) => {
   }
 })
 
+/**
+ * upload single or multiple photos by it's album name or none (empty album name)
+ * path : PUT /{{prefix}}
+ * return :
+ *  - 200 : {"message" : "OK", "data": [ << array of albums >> ]}
+ *  - 500 : {"message" : "ERROR"} //something happen -- check console.log
+ */
 // TODO: better to put in controllers/logics/helpers modules
 router.put(config.api.prefix, async (req, res) => {
   try {
@@ -82,6 +104,7 @@ router.put(config.api.prefix, async (req, res) => {
         await AlbumMod.createDirIfNotExist(saveToPath)
 
         if (files.documents) {
+          // multiple files upload
           if (files.documents.length > 0) {
             const resultRaw = []
             // doing parallel upload
@@ -97,6 +120,8 @@ router.put(config.api.prefix, async (req, res) => {
               resultRaw.push(r)
             }
             resolve(resultRaw)
+
+          // single files upload
           } else {
             // upload image - generalize the data output which is type of array
             //                even with 1 file
@@ -123,6 +148,29 @@ router.put(config.api.prefix, async (req, res) => {
       const response = { message: 'ERROR', detail: 'Unprocessable entity - check your fields' }
       // unprocessable entity coz put fields not correct
       res.status(422).json(response)
+    }
+  } catch (error) {
+    console.log('error : ' + error)
+    res.status(500).json({ message: 'ERROR' })
+  }
+})
+
+/**
+ * delete single existing photo
+ * path : PUT /{{prefix}}/:album/:filename
+ * return :
+ *  - 200 : {"message" : "OK"}
+ *  - 500 : {"message" : "ERROR"} //something happen -- check console.log
+ */
+router.delete('/photos/:album/:filename', async (req, res) => {
+  try {
+    const filePathToDelete = path.join(__dirname, '../../', config.albumPath + '/' +
+      req.params.album.toLowerCase() + '/' + req.params.filename)
+
+    if (await AlbumMod.deleteSingleDataPhotos(filePathToDelete) === true) {
+      res.json({ message: 'OK' })
+    } else {
+      res.json({ message: 'ERROR' })
     }
   } catch (error) {
     console.log('error : ' + error)

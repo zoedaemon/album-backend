@@ -47,4 +47,22 @@ module.exports = class Album {
       return error
     }
   }
+
+  static async deleteSingleDataPhotos (filePathToDelete) {
+    try {
+      // TODO: check if file actually exist
+      const stats = await fs.lstat(filePathToDelete)
+      if (stats.isFile()) {
+        // delete photos
+        await fs.unlink(filePathToDelete)
+        // TODO remove from database
+        return true
+      } else {
+        return new Error('not existing file')
+      }
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  }
 }
