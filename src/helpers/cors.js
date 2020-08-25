@@ -2,6 +2,7 @@
 const config = require('../config')
 
 module.exports = (app) => {
+  // TODO multiple host check for cors not implemented yet, need manual test
   // var allowlist = ['http://localhost:3000/', 'http://localhost:8888', config.api.host]
   // var corsOptionsDelegate = function (req, callback) {
   //   var corsOptions
