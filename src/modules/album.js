@@ -29,11 +29,14 @@ module.exports = class Album {
     }
   }
 
+  // store data with sequelize
   static async storeData (albumModels, objToStore) {
     try {
       // get all album data
       let result = null
-      if (objToStore.length > 1) {
+
+      // do bulk insert if array more than 1 items
+      if (objToStore && objToStore.length > 1) {
         result = await albumModels.bulkCreate(objToStore)
       } else if (objToStore.length === 1) {
         result = await albumModels.create(objToStore[0])
@@ -48,6 +51,7 @@ module.exports = class Album {
     }
   }
 
+  // delete single photos with file checking
   static async deleteSingleDataPhotos (filePathToDelete) {
     try {
       // TODO: check if file actually exist

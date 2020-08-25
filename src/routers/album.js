@@ -20,7 +20,7 @@ const AlbumUploadHelper = require('../helpers/album-upload')
 /**
  * health check for status of API
  * path : GET /health
- * return :
+ * response :
  *  - 200 : {"message" : "OK"}
  *  - 503 : {"message" : "WARN"} //if system of API unhealthy
  *  - 500 : {"message" : "FAIL"} //something wrong with API
@@ -50,7 +50,7 @@ router.get('/health', async (req, res) => {
 /**
  * get list of photos that have been uploaded and still exist / not deleted
  * path : POST /{{prefix}}/list
- * return :
+ * response :
  *  - 200 : {"message" : "OK", "documents": [ << array of albums >> ]}
  *  - 500 : {"message" : "ERROR"} //something wrong with get list data
  */
@@ -76,8 +76,9 @@ router.post(config.api.prefix + '/list', async (req, res) => {
 /**
  * upload single or multiple photos by it's album name or none (empty album name)
  * path : PUT /{{prefix}}
- * return :
+ * response :
  *  - 200 : {"message" : "OK", "data": [ << array of albums >> ]}
+ *  - 422 : {"message" : "ERROR"} //Unprocessable entity of invalid request fields
  *  - 500 : {"message" : "ERROR"} //something happen -- check console.log
  */
 // TODO: better to put in controllers/logics/helpers modules
@@ -158,23 +159,76 @@ router.put(config.api.prefix, async (req, res) => {
 /**
  * delete single existing photo
  * path : PUT /{{prefix}}/:album/:filename
- * return :
+ * response :
  *  - 200 : {"message" : "OK"}
  *  - 500 : {"message" : "ERROR"} //something happen -- check console.log
  */
-router.delete('/photos/:album/:filename', async (req, res) => {
+router.delete(config.api.prefix + '/:album/:filename', async (req, res) => {
   try {
     const filePathToDelete = path.join(__dirname, '../../', config.albumPath + '/' +
       req.params.album.toLowerCase() + '/' + req.params.filename)
 
     if (await AlbumMod.deleteSingleDataPhotos(filePathToDelete) === true) {
-      res.json({ message: 'OK' })
+      res.status(200).json({ message: 'OK' })
     } else {
-      res.json({ message: 'ERROR' })
+      res.status(500).json({ message: 'ERROR' })
     }
   } catch (error) {
     console.log('error : ' + error)
     res.status(500).json({ message: 'ERROR' })
+  }
+})
+
+/**
+ * delete multiple existing photo
+ * path : PUT /{{prefix}}
+ * response :
+ *  - 200 : {"message" : "OK"}
+ *  - 500 : {"message" : "ERROR"} //something happen -- check console.log
+ */
+router.delete(config.api.prefix, async (req, res) => {
+  try {
+    // request body must not be null and have array length
+    if (req.body && Array.isArray(req.body) && req.body.length > 0) {
+      // use promise for simplefy error handling in multiple loop
+      const deleteProcess = await new Promise((resolve, reject) => {
+        // loop over array of album
+        req.body.forEach(async (album) => {
+          const photos = album.documents.split(',')
+
+          // loop over array of photos
+          photos.forEach(async (photo) => {
+            const filePathToDelete = path.join(__dirname, '../../', config.albumPath + '/' +
+            album.album.toLowerCase() + '/' + photo.trim())
+
+            // try to delete file
+            const isDeleted = await AlbumMod.deleteSingleDataPhotos(filePathToDelete)
+            if (isDeleted !== true) {
+              // console.log(` (${isDeleted})`)
+              reject(new Error('delete operation failed for document : ' + photo))
+            } else {
+              resolve('OK')
+            }
+          })
+        })
+      })
+
+      // wait all job
+      Promise.all(deleteProcess).then(result => {
+        const response = { message: 'OK' }
+        res.status(200).json(response)
+      }).catch(error => {
+        console.log(error)
+        res.status(500).json({ message: 'ERROR', detail: error })
+      })
+
+    } else {
+      const response = { message: 'ERROR', detail: 'Unprocessable entity - check your fields' }
+      res.status(422).json(response)
+    }
+  } catch (error) {
+    console.log('error : ' + error)
+    res.status(500).json({ message: 'ERROR', detail: error })
   }
 })
 

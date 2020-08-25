@@ -27,11 +27,12 @@ npm test
 - [x] Unit testing with Jest & Supertest
 - [x] Sequelize connected to Postgresql
 - [x] Migration & Seeding before test unit running
-- [x] GET /health ; Simple Health Check (CPU percentage usage : WARN if > 50%)
-- [x] POST /photos/list
-- [x] PUT /photos ; single or multiple parallel images upload
-- [x] GET /photos/{{Album}}/{{FileName}} ; get single raw image 
-- [ ] GET /photos/{{Album}}/{{FileName}} ; delete single photos
-- [ ] GET /photos ; delete multiple photos
-- [ ] Embeded swagger documentation
+- [x] GET /health & unit test; Simple Health Check (CPU percentage usage : WARN if > 50%)
+- [x] POST /photos/list & unit test 
+- [x] PUT /photos & unit test (mz/fs); single or multiple parallel images upload
+- [x] GET /photos/{{Album}}/{{FileName}} & unit test (comparing raw image with SHA1) ; get single raw image 
+- [x] GET /photos/{{Album}}/{{FileName}} ; delete single photos
+- [x] GET /photos ; delete multiple photos
 - [ ] Modular validator Celebrate & Joy
+- [ ] Separate logic from routers, i.e. controllers
+- [ ] Embeded swagger documentation
